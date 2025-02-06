@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,7 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
@@ -39,9 +42,37 @@ data class ProductList(
     val product_name: String,
     val product_price: String,
     val product_info: String,
-    val image_url: String?
+    val image_url: String
 )
 
+@Composable
+fun ProductList() {
+    var products by remember { mutableStateOf<List<ProductList>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            products = supabase.from("Product")
+                .select()
+                .decodeList<ProductList>()
+        }
+    }
+
+    LazyColumn {
+        items(products, key = { product -> product.id }) { product ->
+            PostBox(
+                title = product.product_name,
+                price = product.product_price,
+                imageUrl = product.image_url, // Передаем URL изображения
+                description = product.product_info,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+        }
+    }
+}
+
+/*
 @Composable
 fun ProductList() {
     var products by remember { mutableStateOf<List<ProductList>>(emptyList()) }
@@ -68,7 +99,69 @@ fun ProductList() {
         }
     }
 }
+*/
 
+@Composable
+fun PostBox(
+    title: String,
+    price: String,
+    imageUrl: String, // Принимаем URL изображения
+    description: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        colors = CardDefaults.cardColors(Color.White),
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .padding(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Image(
+                painter = rememberAsyncImagePainter(model = imageUrl), // Загружаем изображение по URL
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = title,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = price,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = description,
+                color = Color.Gray,
+                fontSize = 14.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+/*
 @Composable
 fun PostBox(
     title: String,
@@ -128,3 +221,4 @@ fun PostBox(
         }
     }
 }
+*/
