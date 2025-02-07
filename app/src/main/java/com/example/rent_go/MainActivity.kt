@@ -19,7 +19,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Rent_GoTheme {
-                ProductList()
+                LichiyCabinet()
+                //ProductList()
             }
         }
     }
