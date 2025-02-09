@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class ProductList(
     val id: Int,
@@ -86,11 +87,11 @@ fun ProductList() {
     }
 
     LazyColumn {
-        items(products, key = { product -> product.id}) { product ->
+        items(products, key = { product -> product.id }) { product ->
             PostBox(
                 title = product.product_name,
                 price = product.product_price,
-                imagePainter = rememberAsyncImagePainter(model = "https://via.placeholder.com/150"),
+                imageUrl = product.image_url,
                 description = product.product_info,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,7 +106,7 @@ fun ProductList() {
 fun PostBox(
     title: String,
     price: String,
-    imageUrl: String, // Принимаем URL изображения
+    imageUrl: String,
     description: String,
     modifier: Modifier = Modifier
 ) {
@@ -119,7 +120,7 @@ fun PostBox(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Image(
-                painter = rememberAsyncImagePainter(model = imageUrl), // Загружаем изображение по URL
+                painter = rememberAsyncImagePainter(model = imageUrl),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -127,9 +128,7 @@ fun PostBox(
                     .height(150.dp)
                     .clip(RoundedCornerShape(8.dp))
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 text = title,
                 color = Color.Black,
@@ -138,18 +137,14 @@ fun PostBox(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
             Text(
                 text = price,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
             Text(
                 text = description,
                 color = Color.Gray,
@@ -160,6 +155,7 @@ fun PostBox(
         }
     }
 }
+
 
 /*
 @Composable

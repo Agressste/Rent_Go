@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,30 +35,40 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.rememberAsyncImagePainter
+import io.github.jan.supabase.SupabaseClient
 
-@Preview
+
 @Composable
-fun LichiyCabinet() {
-    var isLoggedIn by remember { mutableStateOf(true) } // Состояние авторизации
-    val userEmail = "user@example.com" // Пример почты
-    val userPhone = "+7 123 456 78 90" // Пример телефона
-    val userNickname = "Пользователь #12345" // Пример никнейма
-    val userRating = "4.7 (123 отзыва)" // Пример рейтинга
-    val userLocation = "Москва, Россия" // Пример геолокации
+fun Cabinet(supabase: SupabaseClient) {
+    var isLoggedIn by remember { mutableStateOf(true) }
+    val userEmail = "user@example.com"
+    val userPhone = "+7 123 456 78 90"
+    val userNickname = "Пользователь #12345"
+    val userRating = "4.7 (123 отзыва)"
+    val userLocation = "Москва, Россия"
+
+    // Состояние для хранения URL аватарки
+    var avatarUrl by remember { mutableStateOf<String?>(null) }
+
+    // Загружаем данные о продукте при первом запуске
+    LaunchedEffect(Unit) {
+        val productId = 1 // ID продукта, который вы хотите загрузить
+        val product = getProductById(supabase, productId)
+        avatarUrl = product?.image_url // Берем URL изображения из столбца image_url
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White
     ) {
         if (isLoggedIn) {
-            // Личный кабинет для авторизованного пользователя
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Верхняя панель с кнопками "Назад" и "Изменить"
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -77,40 +88,44 @@ fun LichiyCabinet() {
                             .clickable { /* Действие при нажатии на "Изменить" */ }
                     )
                 }
-
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Фото профиля
-                Image(
-                    painter = painterResource(id = R.drawable.my_image),
-                    contentDescription = "Фото профиля",
-                    modifier = Modifier
-                        .size(130.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray)
-                )
+                // Отображение аватарки
+                if (avatarUrl != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = avatarUrl),
+                        contentDescription = "Фото профиля",
+                        modifier = Modifier
+                            .size(130.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray)
+                    )
+                } else {
+                    // Заглушка, если аватарка не загружена
+                    Box(
+                        modifier = Modifier
+                            .size(130.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "No Avatar", color = Color.Gray)
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Никнейм
                 Text(
                     text = userNickname,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Рейтинг и отзывы
                 Text(
                     text = "★ $userRating",
                     fontSize = 16.sp,
                     color = Color.Gray
                 )
-
                 Spacer(modifier = Modifier.height(32.dp))
-
-                // Личные данные
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
@@ -119,18 +134,14 @@ fun LichiyCabinet() {
                         text = "$userLocation",
                         fontSize = 16.sp
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
-
                     if (userEmail.isNotEmpty()) {
                         Text(
                             text = "$userEmail",
                             fontSize = 16.sp
                         )
                     }
-
                     Spacer(modifier = Modifier.height(8.dp))
-
                     if (userPhone.isNotEmpty()) {
                         Text(
                             text = "$userPhone",
@@ -138,10 +149,7 @@ fun LichiyCabinet() {
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.weight(1f))
-
-                // Кнопка "Удалить профиль"
                 Button(
                     onClick = { /* Действие при нажатии на "Удалить профиль" */ },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
@@ -151,13 +159,12 @@ fun LichiyCabinet() {
                 }
             }
         } else {
-            // Экран авторизации
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Button(
-                    onClick = { isLoggedIn = true }, // Авторизация
+                    onClick = { isLoggedIn = true },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
                 ) {
                     Text(text = "Авторизоваться", color = Color.White)
@@ -165,4 +172,11 @@ fun LichiyCabinet() {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewCabinet() {
+    // Для превью передаем заглушку SupabaseClient
+    Cabinet(supabase = supabase)
 }

@@ -52,13 +52,16 @@ android {
 }
 
 dependencies {
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicators)
     implementation(libs.coil.network)
     implementation(libs.ktor)
     implementation(libs.coil.compose)
-    implementation(platform(libs.supabase.bom))
-    implementation(libs.postgrest.kt)
+    implementation(platform(libs.supabase.bom)) // BOM для управления версиями
+    implementation(libs.postgrest.kt) // Без указания версии, если используется BOM
     implementation(libs.realtime.kt)
     implementation(libs.storage.kt)
+    implementation(libs.auth.kt)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
