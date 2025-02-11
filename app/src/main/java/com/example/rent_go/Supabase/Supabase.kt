@@ -1,4 +1,4 @@
-package com.example.rent_go
+package com.example.rent_go.Supabase
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -8,8 +8,8 @@ import io.github.jan.supabase.storage.Storage
 import kotlin.time.Duration.Companion.seconds
 
 val supabase: SupabaseClient = createSupabaseClient(
-    supabaseUrl = "https://arxemonvbwvslwxwggxv.supabase.co",
-    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyeGVtb252Ynd2c2x3eHdnZ3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1MzQ5OTcsImV4cCI6MjA1MzExMDk5N30.8WKDqTnDkfuMtxTvSkd6I3QKwHTN3pdzrsimw3pG41Y"
+    supabaseUrl = "https://fgfkhjverpzyuxksdnhz.supabase.co",
+    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnZmtoanZlcnB6eXV4a3Nkbmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3NDc3MjYsImV4cCI6MjA1MjMyMzcyNn0.4w51t7YW_Xcw2v7qAhpH9h_td2uJnNdo7p5AuSf_f3g"
 ) {
     install(Auth)
     install(Postgrest)

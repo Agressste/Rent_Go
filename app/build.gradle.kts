@@ -57,8 +57,8 @@ dependencies {
     implementation(libs.coil.network)
     implementation(libs.ktor)
     implementation(libs.coil.compose)
-    implementation(platform(libs.supabase.bom)) // BOM для управления версиями
-    implementation(libs.postgrest.kt) // Без указания версии, если используется BOM
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.postgrest.kt)
     implementation(libs.realtime.kt)
     implementation(libs.storage.kt)
     implementation(libs.auth.kt)
@@ -71,6 +71,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.litert.support.api)
+    implementation(libs.androidx.navigation.runtime.android)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.play.services.analytics.impl)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
