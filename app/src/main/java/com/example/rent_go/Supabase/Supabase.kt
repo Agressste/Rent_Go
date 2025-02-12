@@ -13,7 +13,7 @@ val supabase: SupabaseClient = createSupabaseClient(
 ) {
     install(Postgrest)
     install(Storage) {
-        transferTimeout = 90.seconds
+        transferTimeout = 30.seconds
     }
     install(Auth)
 }

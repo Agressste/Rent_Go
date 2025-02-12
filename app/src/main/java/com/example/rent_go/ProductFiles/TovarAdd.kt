@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -45,6 +46,7 @@ import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +61,7 @@ fun TovarAdd(navController: NavHostController, context: Context) {
         val price = remember { mutableStateOf("") }
         val description = remember { mutableStateOf("") }
         var imageUri by remember { mutableStateOf<Uri?>(null) }
+        var isLoading by remember { mutableStateOf(false) } // Флаг для блокировки кнопки
 
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
@@ -66,6 +69,7 @@ fun TovarAdd(navController: NavHostController, context: Context) {
             imageUri = uri
         }
 
+        // Кнопка для выбора изображения
         OutlinedButton(
             onClick = { launcher.launch("image/*") },
             modifier = Modifier
@@ -153,56 +157,74 @@ fun TovarAdd(navController: NavHostController, context: Context) {
                 .fillMaxWidth()
                 .padding(8.dp),
             onClick = {
-                composableScope.launch(Dispatchers.IO) {
-                    val priceValue = price.value.toDoubleOrNull()
-                    if (priceValue == null) {
-                        println("Цена должна быть числом")
-                        return@launch
-                    }
+                if (!isLoading) { // Проверяем, не выполняется ли уже операция
+                    composableScope.launch(Dispatchers.IO) {
+                        isLoading = true // Блокируем кнопку
+                        val priceValue = price.value.toDoubleOrNull()
+                        if (priceValue == null) {
+                            println("Цена должна быть числом")
+                            isLoading = false // Разблокируем кнопку
+                            return@launch
+                        }
 
-                    imageUri?.let { uri ->
-                        val contentResolver = context.contentResolver
-                        val inputStream = contentResolver.openInputStream(uri)
-                        val byteArray = inputStream?.readBytes()
-                        val fileName = "images/${System.currentTimeMillis()}.jpg"
-                        val storage = supabase.storage.from("images")
-                        val result = byteArray?.let { storage.upload(fileName, it) }
-                        val imageUrl = storage.publicUrl(fileName)
+                        imageUri?.let { uri ->
+                            val contentResolver = context.contentResolver
+                            val inputStream = contentResolver.openInputStream(uri)
+                            val byteArray = inputStream?.readBytes()
+                            val fileName = "images/${System.currentTimeMillis()}.jpg"
+                            val storage = supabase.storage.from("images")
+                            val result = byteArray?.let { storage.upload(fileName, it) }
+                            val imageUrl = storage.publicUrl(fileName)
 
-                        try {
-                            val tovar = Tovar(
-                                id = 0, // ID будет автоматически сгенерирован в Supabase
-                                name = name.value,
-                                price = priceValue,
-                                description = description.value,
-                                image_url = imageUrl
-                            )
-                            supabase.from("Tovar").insert(tovar)
-                            println("Товар добавлен")
+                            try {
+                                val tovar = Tovar(
+                                    id = null, // id будет сгенерирован Supabase
+                                    name = name.value,
+                                    price = priceValue,
+                                    description = description.value,
+                                    image_url = imageUrl
+                                )
 
-                            // Переход на следующую страницу после успешного добавления
-                            withContext(Dispatchers.Main) {
-                                navController.navigate("home") // Переход на главный экран
+                                // Используем upsert для вставки или обновления записи
+                                supabase.from("Tovar").upsert(tovar) {
+                                    select()
+                                    single()
+                                }.decodeAs<Tovar>()
+
+                                println("Товар добавлен")
+
+                                // Переход на следующую страницу после успешного добавления
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate("home") // Переход на главный экран
+                                }
+                            } catch (e: Exception) {
+                                println("Ошибка при добавлении: ${e.message}")
+                            } finally {
+                                isLoading = false // Разблокируем кнопку
                             }
-                        } catch (e: Exception) {
-                            println("Ошибка при добавлении: ${e.message}")
                         }
                     }
                 }
             },
+            enabled = !isLoading, // Отключаем кнопку, если операция выполняется
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 contentColor = Color.White,
                 containerColor = Color.Blue
             )
         ) {
-            Text(text = "Сохранить", fontWeight = FontWeight.Bold)
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White) // Показываем индикатор загрузки
+            } else {
+                Text(text = "Сохранить", fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
 
+@Serializable
 data class Tovar(
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val price: Double,
     val description: String,

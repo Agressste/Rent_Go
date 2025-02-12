@@ -32,19 +32,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
+import com.example.rent_go.R
 import com.example.rent_go.Supabase.supabase
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import java.text.NumberFormat
+import java.util.Locale
 
 @Serializable
 data class ProductList(
     val id: Int,
-    val product_name: String,
-    val product_price: String,
-    val product_info: String,
-    val image_url: String
+    val name: String,
+    val price: Double,
+    val description: String,
+    val image_url: String?
 )
 
 @Composable
@@ -64,7 +67,7 @@ fun ListProduct(navController: NavController) {
         products
     } else {
         products.filter { product ->
-            product.product_name.contains(searchText, ignoreCase = true)
+            product.name.contains(searchText, ignoreCase = true)
         }
     }
 
@@ -76,15 +79,73 @@ fun ListProduct(navController: NavController) {
         LazyColumn {
             items(filteredProducts, key = { product -> product.id }) { product ->
                 PostBox(
-                    title = product.product_name,
-                    price = product.product_price,
+                    name = product.name,
+                    price = product.price,
                     imageUrl = product.image_url,
-                    description = product.product_info,
+                    description = product.description,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun PostBox(
+    name: String,
+    price: Double,
+    imageUrl: String?,
+    description: String,
+    modifier: Modifier = Modifier
+) {
+    val formattedPrice = NumberFormat.getNumberInstance(Locale.US).format(price)
+
+    Card(
+        colors = CardDefaults.cardColors(Color.White),
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .padding(3.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = imageUrl ?: R.drawable.placeholder // Заглушка
+                ),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = name,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "$$formattedPrice", // Форматированная цена
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = description,
+                color = Color.Gray,
+                fontSize = 14.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -112,59 +173,5 @@ fun Poisk(onSearchTextChanged: (String) -> Unit) {
             },
             placeholder = { Text("Поиск товаров...") }
         )
-    }
-}
-
-@Composable
-fun PostBox(
-    title: String,
-    price: String,
-    imageUrl: String,
-    description: String,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        colors = CardDefaults.cardColors(Color.White),
-        shape = RoundedCornerShape(8.dp),
-        modifier = modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .padding(3.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Image(
-                painter = rememberAsyncImagePainter(model = imageUrl),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = title,
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = price,
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = description,
-                color = Color.Gray,
-                fontSize = 14.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
     }
 }

@@ -34,6 +34,8 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 
+//    Н А Д О    Н О Р М    С Д Е Л А Т Ь
+
 /*
 @Composable
 fun ProductDetailPage(
