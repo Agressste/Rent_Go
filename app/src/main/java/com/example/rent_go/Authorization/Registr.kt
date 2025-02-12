@@ -20,11 +20,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.rent_go.Supabase.supabase
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,6 +80,7 @@ fun Register(navController: NavController) {
 }
  */
 
+//РАБОТАЮЩАЯ В КАСТОМНУЮ ТАБЛИЦУ СОХРАНЯЕТ
 @Composable
 fun Register(navController: NavController) {
     var login by remember { mutableStateOf("") }

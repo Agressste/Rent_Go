@@ -31,6 +31,7 @@ import com.example.rent_go.ProductFiles.ListProduct
 import com.example.rent_go.ProductFiles.Poisk
 import com.example.rent_go.ProductFiles.PostBox
 import com.example.rent_go.ProductFiles.ProductList
+import com.example.rent_go.ProductFiles.TovarAdd
 import com.example.rent_go.Supabase.supabase
 import com.example.rent_go.ui.theme.Rent_GoTheme
 
@@ -56,7 +57,11 @@ fun Enter(navController: NavHostController) {
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Добро пожаловать в RentGo!", textAlign = TextAlign.Center, fontSize = 28.sp, fontWeight = FontWeight.Bold,
+        Text(
+            text = "Добро пожаловать в RentGo!",
+            textAlign = TextAlign.Center,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
         )
